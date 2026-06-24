@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>종합병원 404</title>
+  
+  <!-- CSS & Fonts -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  
+  <!-- 둥근모꼴 (DungGeunMo) 웹 폰트 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/DungGeunMo.css">
+
+  <!-- Firebase Realtime DB (Compat SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 0: 타이틀
+  ══════════════════════════════════════ -->
+  <section id="screen-title" class="screen active">
+    <div class="title-container">
+      <div class="hospital-cross">✚</div>
+      <h1 class="game-title">종합병원<br/><span class="title-404">404</span></h1>
+      <p class="game-subtitle">– 의사가 부족합니다 –</p>
+      <p class="game-desc">기상천외한 환자들을 진단하는<br/>멀티플레이 파티 게임</p>
+      <button class="btn btn-primary btn-large" id="btn-go-lobby">
+        <i class="fa-solid fa-door-open"></i> 진료실 입장
+      </button>
+      <div class="title-footer">2~5명 · 5라운드 · 실시간 멀티플레이</div>
+    </div>
+    <div class="floating-icons">
+      <span class="float-icon" style="--d:0s;--x:10%;--y:20%">🏥</span>
+      <span class="float-icon" style="--d:1s;--x:80%;--y:15%">💊</span>
+      <span class="float-icon" style="--d:2s;--x:20%;--y:70%">🩺</span>
+      <span class="float-icon" style="--d:.5s;--x:75%;--y:65%">🔬</span>
+      <span class="float-icon" style="--d:1.5s;--x:50%;--y:85%">💉</span>
+      <span class="float-icon" style="--d:2.5s;--x:40%;--y:10%">🩻</span>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 1: 로비 (방 만들기 / 참가)
+  ══════════════════════════════════════ -->
+  <section id="screen-lobby" class="screen">
+    <div class="screen-inner narrow">
+      <div class="screen-header">
+        <span class="step-badge">방 선택</span>
+        <h2>진료실 입장</h2>
+        <p>새 방을 만들거나, 친구의 방 코드를 입력하세요</p>
+      </div>
+      <div class="lobby-grid">
+        <!-- 방 만들기 -->
+        <div class="lobby-card">
+          <div class="lobby-card-icon">🏥</div>
+          <h3>방 만들기</h3>
+          <p>내가 방장이 되어<br/>친구들을 초대합니다</p>
+          <input type="text" id="input-my-name-create" class="room-code-input"
+            placeholder="내 이름" maxlength="10" style="font-size:1.1rem;letter-spacing:.02em;margin-bottom:10px;" />
+          <button class="btn btn-primary" id="btn-create-room" style="width:100%;justify-content:center;">
+            <i class="fa-solid fa-plus"></i> 방 만들기
+          </button>
+        </div>
+        <!-- 방 참가 -->
+        <div class="lobby-card">
+          <div class="lobby-card-icon">🔑</div>
+          <h3>방 참가하기</h3>
+          <p>4자리 코드를 입력해<br/>친구 방에 들어갑니다</p>
+          <input type="text" id="input-my-name-join" class="room-code-input"
+            placeholder="내 이름" maxlength="10" style="font-size:1.1rem;letter-spacing:.02em;margin-bottom:10px;" />
+          <input type="text" id="input-room-code" class="room-code-input"
+            placeholder="방 코드" maxlength="4" />
+          <button class="btn btn-navy" id="btn-join-room" style="width:100%;justify-content:center;margin-top:12px;">
+            <i class="fa-solid fa-right-to-bracket"></i> 참가하기
+          </button>
+        </div>
+      </div>
+      <!-- 에러 메시지 -->
+      <div id="lobby-error" class="hidden" style="margin-top:16px;background:#fadbd8;border:1px solid #f5b7b1;border-radius:10px;padding:12px 16px;color:#922b21;font-size:.88rem;text-align:center;"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 2: 대기실
+  ══════════════════════════════════════ -->
+  <section id="screen-waiting" class="screen">
+    <div class="screen-inner narrow">
+      <div class="screen-header">
+        <span class="step-badge">대기실</span>
+        <h2>의료진 대기 중</h2>
+        <p>모든 참가자가 준비되면 방장이 게임을 시작합니다</p>
+      </div>
+      <div class="waiting-room">
+        <div class="waiting-room-header">
+          <h3>📋 참가 현황</h3>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="room-code-badge" id="display-room-code">????</span>
+            <button class="btn btn-ghost" id="btn-copy-code" style="padding:6px 12px;font-size:.78rem;">
+              <i class="fa-solid fa-copy"></i> 복사
+            </button>
+          </div>
+        </div>
+        <div id="players-list" class="players-list">
+          <!-- JS로 생성 -->
+        </div>
+        <div class="waiting-status">
+          <div class="waiting-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <p id="waiting-status-text">친구들이 들어오길 기다리는 중...</p>
+        </div>
+      </div>
+      <!-- 방장 전용 -->
+      <div id="host-controls" class="hidden">
+        <button class="btn btn-primary btn-large" id="btn-start-game">
+          <i class="fa-solid fa-stethoscope"></i> 게임 시작!
+        </button>
+        <p style="text-align:center;color:var(--c-text-dim);font-size:.8rem;margin-top:8px;">
+          2명 이상이면 시작 가능합니다
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 3: 라운드 시작 (환자 입장)
+  ══════════════════════════════════════ -->
+  <section id="screen-round-start" class="screen">
+    <div class="screen-inner narrow">
+      <div class="round-announce">
+        <div class="round-badge" id="round-badge-num">ROUND 1</div>
+        <div class="round-announce-title" id="round-announce-title">새 환자가 도착했습니다!</div>
+        <div class="patient-arrival-anim">
+          <div class="patient-silhouette" id="patient-silhouette">❓</div>
+          <div class="arrival-text">초진 차트를 확인하세요</div>
+        </div>
+        <button class="btn btn-primary btn-large" id="btn-show-chart">
+          <i class="fa-solid fa-clipboard-list"></i> 초진 차트 공개
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 4: 초진 차트
+  ══════════════════════════════════════ -->
+  <section id="screen-chart" class="screen">
+    <div class="screen-inner">
+      <div class="screen-header">
+        <span class="step-badge">초진 차트</span>
+        <h2>환자 정보</h2>
+      </div>
+      <div class="chart-container" id="patient-chart"></div>
+      <button class="btn btn-primary btn-large" id="btn-start-diagnosis">
+        <i class="fa-solid fa-pen-to-square"></i> 진단서 작성 시작
+      </button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 5: 진단서 작성
+  ══════════════════════════════════════ -->
+  <section id="screen-diagnosis" class="screen">
+    <div class="screen-inner">
+      <div class="diagnosis-header">
+        <div class="timer-wrap">
+          <div class="timer-ring" id="timer-ring">
+            <svg viewBox="0 0 100 100">
+              <circle class="timer-bg" cx="50" cy="50" r="42"/>
+              <circle class="timer-progress" id="timer-circle" cx="50" cy="50" r="42"/>
+            </svg>
+            <span class="timer-num" id="timer-display">60</span>
+          </div>
+          <span class="timer-label">초</span>
+        </div>
+        <div class="diagnosis-title-area">
+          <span class="step-badge">진단서 작성</span>
+          <h2>질병을 진단하세요!</h2>
+          <p id="diagnosis-patient-name">환자: ???</p>
+        </div>
+      </div>
+      <div id="diagnosis-forms" class="diagnosis-forms"></div>
+      <div id="submit-area">
+        <button class="btn btn-danger btn-large" id="btn-submit-diagnosis">
+          <i class="fa-solid fa-file-medical"></i> 내 진단서 제출
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 6: 제출 대기
+  ══════════════════════════════════════ -->
+  <section id="screen-waiting-submit" class="screen">
+    <div class="screen-inner narrow center" style="align-self:center;">
+      <div style="padding:60px 20px;text-align:center;">
+        <div style="font-size:4rem;margin-bottom:20px;">✅</div>
+        <h2 style="font-family:var(--font-title);color:var(--c-navy);margin-bottom:12px;">진단서 제출 완료!</h2>
+        <p style="color:var(--c-text-sub);margin-bottom:32px;">다른 의사들의 제출을 기다리는 중입니다...</p>
+        <div class="waiting-dots"><span></span><span></span><span></span></div>
+        <div id="submit-status-list" style="margin-top:24px;display:flex;flex-direction:column;gap:8px;max-width:300px;margin-left:auto;margin-right:auto;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 7: AI 시뮬레이션
+  ══════════════════════════════════════ -->
+  <section id="screen-simulating" class="screen">
+    <div class="screen-inner narrow center" style="align-self:center;">
+      <div class="sim-anim">
+        <div class="dna-loader">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <h2 class="sim-title" id="sim-title">AI 의료 시뮬레이션 진행 중...</h2>
+        <p class="sim-sub" id="sim-sub">환자의 반응을 분석하고 있습니다</p>
+        <div class="sim-progress">
+          <div class="sim-bar" id="sim-bar"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 8: 결과 보고서
+  ══════════════════════════════════════ -->
+  <section id="screen-results" class="screen">
+    <div class="screen-inner">
+      <div class="screen-header">
+        <span class="step-badge">치료 결과 보고서</span>
+        <h2 id="results-round-label">Round 1 결과</h2>
+      </div>
+      <div id="results-container" class="results-container"></div>
+      <div style="margin-top:28px;">
+        <button class="btn btn-ghost btn-large" id="btn-next-round">
+          <i class="fa-solid fa-arrow-right"></i>
+          <span id="btn-next-label">다음 라운드</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 9: 최종 점수
+  ══════════════════════════════════════ -->
+  <section id="screen-final" class="screen">
+    <div class="screen-inner">
+      <div class="final-header">
+        <div class="final-title-badge">🏥 최종 진단 결과 🏥</div>
+        <h2>게임 종료!</h2>
+        <p>5라운드가 모두 종료되었습니다</p>
+      </div>
+      <div id="final-scoreboard" class="final-scoreboard"></div>
+      <button class="btn btn-danger btn-large" id="btn-loser-event">
+        <i class="fa-solid fa-skull"></i> 최하위 특별 이벤트 공개
+      </button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 10: 패배자 이벤트
+  ══════════════════════════════════════ -->
+  <section id="screen-loser" class="screen">
+    <div class="screen-inner narrow">
+      <div class="loser-header">
+        <div class="loser-badge">⚠️ 특별 환자 등록 ⚠️</div>
+        <h2 id="loser-title">면허 박탈 엔딩</h2>
+        <p id="loser-message" class="loser-message"></p>
+      </div>
+      <div class="chart-container loser-chart" id="loser-chart"></div>
+      <button class="btn btn-primary btn-large" id="btn-restart">
+        <i class="fa-solid fa-rotate"></i> 다시 진료하기
+      </button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
+       MODAL: 이벤트
+  ══════════════════════════════════════ -->
+  <div id="modal-event" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-icon" id="modal-event-icon">⚡</div>
+      <h3 class="modal-title" id="modal-event-title">특별 이벤트!</h3>
+      <p class="modal-body" id="modal-event-body"></p>
+      <button class="btn btn-primary" id="btn-close-modal">확인</button>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
