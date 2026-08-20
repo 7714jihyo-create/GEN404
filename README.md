@@ -1,5 +1,5 @@
-# 🏥 종합병원 404 (미완성)[https://epfyesul.gensparkspace.com/]
-
+# 🏥 종합병원 404 (미완성) [https://epfyesul.gensparkspace.com/]
+(멀티 플레이 기능 x)
 ---
 
 ## 🎮 게임 개요
