@@ -11,10 +11,10 @@ public class ButtonDown : MonoBehaviour
         SceneManager.LoadScene("GameScene");
     }
 
-    // 기존 씬 버튼과의 호환성을 유지합니다. 실제 라운드 전환은 세션이 담당합니다.
+    // 기존 진료실의 다음 버튼은 진료가 끝났으면 다음 환자를, 미제출 상태면 방치 결과를 기록한 뒤 대기실로 보냅니다.
     public void NextButtonDown()
     {
-        HospitalSession.Ensure().ContinueAfterReport();
+        HospitalSession.Ensure().SkipCurrentPatientAndContinue();
     }
 
     // WaitingScene의 기존 버튼에 연결돼 있던 메서드입니다.

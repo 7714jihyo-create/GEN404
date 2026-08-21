@@ -771,6 +771,7 @@ GameObject:
   m_Component:
   - component: {fileID: 521687095}
   - component: {fileID: 521687094}
+  - component: {fileID: 521687096}
   m_Layer: 0
   m_Name: InfoManager
   m_TagString: Untagged
@@ -791,6 +792,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 383146401}
+--- !u!114 &521687096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521687093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2f9a8c68ce4ac5b149d0863fb2c7ea, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
 --- !u!4 &521687095
 Transform:
   m_ObjectHideFlags: 0
@@ -887,7 +900,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 870066076}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 521687096}
+        m_TargetAssemblyTypeName: Hospital404.HospitalGameUI, Assembly-CSharp
+        m_MethodName: OpenDiagnosis
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+        m_IntArgument: 0
+        m_FloatArgument: 0
+        m_StringArgument:
+        m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &870066076
 MonoBehaviour:
   m_ObjectHideFlags: 0

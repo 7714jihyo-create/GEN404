@@ -158,6 +158,23 @@ namespace Hospital404
             SceneManager.LoadScene(IsRunFinished ? "ResultScene" : "WaitingScene");
         }
 
+        // 진료실의 기존 '다음' 버튼을 눌렀을 때도 다음 장면으로 진행되도록 합니다.
+        // 진단서를 제출하지 않았다면 해당 환자는 방치 결과로 기록합니다.
+        public void SkipCurrentPatientAndContinue()
+        {
+            if (!HasActivePatient)
+            {
+                return;
+            }
+
+            if (results.Count <= CurrentRound)
+            {
+                SubmitDiagnosis(string.Empty, string.Empty);
+            }
+
+            ContinueAfterReport();
+        }
+
         public string GetFinalGrade()
         {
             if (TotalScore >= 270)
