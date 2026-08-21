@@ -1,31 +1,34 @@
-using System.Collections;
-using System.Collections.Generic;
+using Hospital404;
 using UnityEngine;
 
 public class PlayManager : MonoBehaviour
 {
-    [Header("노출시킬 팝업 패널")]
-    public GameObject panel; // Inspector에서 Panel 오브젝트를 드래그 앤 드롭 연결
+    [Header("기존 팝업 패널 (새 진료 UI가 없을 때의 예비 처리)")]
+    public GameObject panel;
 
-    void Start()
+    private void Start()
     {
-        // 게임 시작 시 패널이 열려있다면 자동으로 닫아둡니다.
         if (panel != null)
         {
             panel.SetActive(false);
         }
     }
 
-    // HowToPlay 버튼 클릭 시 실행
+    // 기존 Chart 버튼과 HowToPlay 버튼의 연결을 보존합니다.
     public void OpenPanel()
     {
+        if (HospitalGameUI.Active != null)
+        {
+            HospitalGameUI.Active.OpenChart();
+            return;
+        }
+
         if (panel != null)
         {
             panel.SetActive(true);
         }
     }
 
-    // CloseButton 클릭 시 실행
     public void ClosePanel()
     {
         if (panel != null)
